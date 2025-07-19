@@ -1,0 +1,138 @@
+body {
+  display: flex;
+  flex-direction: column;
+  font-family: Roboto, sans-serif;
+  margin: 0;
+  font-size: 24px;
+  min-height: 100vh;
+}
+
+.app_header {
+  display: flex;
+  background-color: rgb(80, 25, 132);
+  color: rgb(255, 255, 255);
+  width: 100vw;
+  height: 100%;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+.app_auth_buttons button {
+  background-color: rgb(80, 25, 132);
+  height: 2em;
+  border:none;
+  font-size: 1em;
+  transition: background-color 0.15s;
+  border-radius: 8px;
+}
+
+.app_auth_buttons button:hover {
+  background-color: rgb(30, 28, 29);
+  
+}
+
+.app_auth_buttons a {
+  color: rgb(255, 255, 255);
+  text-decoration: none;
+}
+
+.app_main {
+  flex: 1;
+  padding: 2em 4em;
+}
+
+.app_main_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 250px);
+  justify-content: center;
+  gap: 1em;
+}
+
+.app_card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  box-sizing: border-box;
+  border: 4px solid rgb(80, 25, 132);
+  height: 300px;
+  border-radius: 16px;
+  overflow: hidden;
+  user-select: none;
+  cursor: grab;
+  transition: none; /* выключаем стандартные transition'ы, чтобы не мешали FLIP */
+  will-change: transform;
+}
+
+.dragging {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.8;
+  transform: scale(1.05);
+  z-index: 1000;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.app_card:hover {
+  box-shadow: 5px 5px 15px rgba(0,0,0,0.15);
+}
+
+
+.card_category {
+  background-color: rgb(80, 25, 132);
+  color: rgb(255, 255, 255);  
+  text-align: center;
+  padding: 8px 0px 10px 0px;
+  margin: 0;
+}
+
+.card_to_do_section {
+  flex: 1;
+  padding: 10px;
+}
+
+.app_card_new_task_btn {
+  background-color: rgb(30, 28, 29);
+  color: rgb(255, 255, 255);
+  border: none;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  padding: 10px 0px 8px 0px;
+  font-size: 0.9em;
+  transition: background-color 0.25s;
+}
+
+.app_card_new_task_btn:hover {
+  background-color: rgb(96, 96, 96);
+}
+
+.app_add_card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  border: 4px dotted rgb(197, 197, 197);
+  height: 300px;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.app_add_card button {
+  border: none;
+  background-color: rgb(255, 255, 255);
+  color: rgb(197, 197, 197);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.plus {
+  font-size: 48px;
+}
+
+footer {
+  background-color: rgb(30, 28, 29);
+  color: rgb(255, 255, 255);
+  text-align: center;
+  padding: 1rem;
+}

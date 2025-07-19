@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <title>Document</title>
+</head>
+<body>
+  <header>
+    <div class="app_header">
+      <div class="app_auth_buttons">
+        <button>
+          <a href="#">Login</a> 
+        </button>                 
+        |
+        <button>
+          <a href="#">Register</a> 
+        </button>        
+        
+      </div>      
+    </div>
+  </header>
+
+  <main class="app_main">
+    <div class="app_main_grid">
+
+      <article class="app_card" draggable="true">
+        <section class="card_category">Programming 1</section>
+        <section class="card_to_do_section">
+          <ul>
+            <li>Learn SQLAlchemy</li>
+            <li>Learn FastAPI</li>
+            <li>Learn React</li>
+          </ul>
+        </section>
+        <section class="app_card_new_task_section">
+          <button class="app_card_new_task_btn">+ Add New Task</button>
+        </section>
+      </article>
+
+      <article class="app_card" draggable="true">
+        <section class="card_category">Programming 2</section>
+        <section class="card_to_do_section">
+          <ul>
+            <li>Learn SQLAlchemy</li>
+            <li>Learn FastAPI</li>
+            <li>Learn React</li>
+          </ul>
+        </section>
+        <section class="app_card_new_task_section">
+          <button class="app_card_new_task_btn">+ Add New Task</button>
+        </section>
+      </article>
+
+      <article class="app_card" draggable="true">
+        <section class="card_category">Programming 3</section>
+        <section class="card_to_do_section">
+          <ul>
+            <li>Learn SQLAlchemy</li>
+            <li>Learn FastAPI</li>
+            <li>Learn React</li>
+          </ul>
+        </section>
+        <section class="app_card_new_task_section">
+          <button class="app_card_new_task_btn">+ Add New Task</button>
+        </section>
+      </article>
+
+      <article class="app_card" draggable="true">
+        <section class="card_category">Programming 4</section>
+        <section class="card_to_do_section">
+          <ul>
+            <li>Learn SQLAlchemy</li>
+            <li>Learn FastAPI</li>
+            <li>Learn React</li>
+          </ul>
+        </section>
+        <section class="app_card_new_task_section">
+          <button class="app_card_new_task_btn">+ Add New Task</button>
+        </section>
+      </article>
+
+      <article class="app_card" draggable="true">
+        <section class="card_category">Programming 5</section>
+        <section class="card_to_do_section">
+          <ul>
+            <li>Learn SQLAlchemy</li>
+            <li>Learn FastAPI</li>
+            <li>Learn React</li>
+          </ul>
+        </section>
+        <section class="app_card_new_task_section">
+          <button class="app_card_new_task_btn">+ Add New Task</button>
+        </section>
+      </article>
+
+      <article class="app_card" draggable="true">
+        <section class="card_category">Programming 6</section>
+        <section class="card_to_do_section">
+          <ul>
+            <li>Learn SQLAlchemy</li>
+            <li>Learn FastAPI</li>
+            <li>Learn React</li>
+          </ul>
+        </section>
+        <section class="app_card_new_task_section">
+          <button class="app_card_new_task_btn">+ Add New Task</button>
+        </section>
+      </article>
+
+      <article class="app_add_card">
+        <section>
+          <button>
+            <span class="plus">+</span> 
+            <br> Add New Category
+          </button>
+        </section>
+      </article>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="app_footer">
+      &copy; Alex Levitskiy 2025
+    </div>
+  </footer>
+</body>
+<script>
+const grid = document.querySelector('.app_main_grid');
+let draggedEl = null;
+
+function animateFlip(elements, beforeRects) {
+  elements.forEach((el, i) => {
+    const last = el.getBoundingClientRect();
+    const first = beforeRects[i];
+
+    const dx = first.left - last.left;
+    const dy = first.top - last.top;
+
+    el.animate([
+      { transform: `translate(${dx}px, ${dy}px)` },
+      { transform: 'translate(0, 0)' }
+    ], {
+      duration: 300,
+      easing: 'ease'
+    });
+  });
+}
+
+let startX = 0, startY = 0;
+let offsetX = 0, offsetY = 0;
+let placeholder = null;
+
+grid.addEventListener('mousedown', (e) => {
+  const target = e.target.closest('.app_card');
+  if (!target) return;
+
+  draggedEl = target;
+  const rect = target.getBoundingClientRect();
+
+  startX = e.clientX;
+  startY = e.clientY;
+  offsetX = e.clientX - rect.left;
+  offsetY = e.clientY - rect.top;
+
+  // Клонируем элемент как placeholder
+  placeholder = document.createElement('div');
+  placeholder.className = 'app_card';
+  placeholder.style.visibility = 'hidden';
+  grid.insertBefore(placeholder, target.nextSibling);
+
+  // Перемещаем карточку в body
+  draggedEl.classList.add('dragging');
+  draggedEl.style.width = `${rect.width}px`;
+  draggedEl.style.height = `${rect.height}px`;
+  document.body.appendChild(draggedEl);
+
+  moveAt(e.pageX, e.pageY);
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+});
+
+function moveAt(pageX, pageY) {
+  draggedEl.style.left = pageX - offsetX + 'px';
+  draggedEl.style.top = pageY - offsetY + 'px';
+}
+
+function onMouseMove(e) {
+  moveAt(e.pageX, e.pageY);
+
+  const cards = [...grid.querySelectorAll('.app_card')].filter(c => c !== placeholder);
+  const mouseX = e.clientX;
+  const mouseY = e.clientY;
+
+  // 1. Сохраняем старые позиции
+  const beforeRects = cards.map(el => el.getBoundingClientRect());
+
+  // 2. Производим перестановку
+  for (const card of cards) {
+    const rect = card.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    if (mouseX < centerX && mouseY < rect.bottom && mouseY > rect.top) {
+      grid.insertBefore(placeholder, card);
+
+      // 3. Получаем новые элементы (после перестановки)
+      requestAnimationFrame(() => {
+        const afterCards = [...grid.querySelectorAll('.app_card')].filter(c => c !== placeholder);
+        animateFlip(afterCards, beforeRects);
+      });
+      break;
+    }
+
+    if (card === cards[cards.length - 1]) {
+      grid.appendChild(placeholder);
+
+      // 3. Получаем новые элементы (после перестановки)
+      requestAnimationFrame(() => {
+        const afterCards = [...grid.querySelectorAll('.app_card')].filter(c => c !== placeholder);
+        animateFlip(afterCards, beforeRects);
+      });
+    }
+  }
+}
+
+function onMouseUp() {
+  placeholder.replaceWith(draggedEl);
+
+  draggedEl.classList.remove('dragging');
+  draggedEl.style = '';
+
+  document.removeEventListener('mousemove', onMouseMove);
+  document.removeEventListener('mouseup', onMouseUp);
+
+  draggedEl = null;
+}
+
+</script>
+
+</html>
