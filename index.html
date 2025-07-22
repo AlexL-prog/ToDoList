@@ -148,24 +148,45 @@
 const grid = document.querySelector('.app_main_grid');
 let draggedEl = null;
 
+let isAnimating = false;
+
 function animateFlip(elements, beforeRects) {
+  if (isAnimating) return; // 🚫 Пропускаем, если уже идёт анимация
+
+  const animations = [];
+
   elements.forEach(el => {
     const first = beforeRects.get(el);
+    const last = el.getBoundingClientRect();
+
     if (!first) return;
 
-    const last = el.getBoundingClientRect();
     const dx = first.left - last.left;
     const dy = first.top - last.top;
 
-    el.animate([
+    if (dx === 0 && dy === 0) return; // ✋ Нет смещения — нечего анимировать
+
+    const anim = el.animate([
       { transform: `translate(${dx}px, ${dy}px)` },
       { transform: 'translate(0, 0)' }
     ], {
       duration: 300,
       easing: 'ease'
     });
+
+    animations.push(anim);
   });
+
+  if (animations.length > 0) {
+    isAnimating = true;
+    Promise.all(animations.map(a => a.finished)).then(() => {
+      isAnimating = false;
+    });
+  }
 }
+
+
+
 
 
 
@@ -186,9 +207,15 @@ grid.addEventListener('mousedown', (e) => {
   offsetY = e.clientY - rect.top;
 
   // Клонируем элемент как placeholder
-  placeholder = document.createElement('div');
-  placeholder.className = 'app_card';
-  placeholder.style.visibility = 'hidden';
+  placeholder = document.createElement('article');
+
+
+  placeholder.className = 'app_card placeholder';
+  const style = getComputedStyle(target);
+  placeholder.style.width = style.width;
+  placeholder.style.height = style.height;
+  
+
   grid.insertBefore(placeholder, target.nextSibling);
 
   // Перемещаем карточку в body
@@ -210,62 +237,59 @@ function moveAt(pageX, pageY) {
 
 let lastOrderRects = new Map();
 
-function onMouseMove(e) {
+let animationInProgress = false;
+
+async function onMouseMove(e) {
+  if (animationInProgress) return; // не обрабатывать, пока идёт анимация
+
   moveAt(e.pageX, e.pageY);
 
-  const cards = [...grid.querySelectorAll('.app_card')].filter(c => c !== placeholder);
+  const allCards = [...grid.querySelectorAll('.app_card')];
+  const cards = allCards.filter(c => c !== placeholder);
 
   const mouseX = e.clientX;
   const mouseY = e.clientY;
 
-  let inserted = false;
-
   for (const card of cards) {
     const rect = card.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+    const isInsideY = mouseY > rect.top && mouseY < rect.bottom;
+    const isInsideX = mouseX > rect.left && mouseX < rect.right;
 
-    if (mouseX < centerX && mouseY > rect.top && mouseY < rect.bottom) {
-      if (placeholder !== card.previousSibling) {
-        // 1. Сохраняем позиции ДО изменений
-        lastOrderRects = new Map();
-        cards.forEach(el => lastOrderRects.set(el, el.getBoundingClientRect()));
+    if (isInsideX && isInsideY) {
+      const centerX = rect.left + rect.width / 2;
+      const currentIndex = allCards.indexOf(placeholder);
+      const targetIndex = allCards.indexOf(card);
+      const direction = mouseX < centerX ? 'before' : 'after';
 
-        // 2. Изменяем DOM
+      const isSamePosition =
+        (direction === 'before' && currentIndex === targetIndex + 1) ||
+        (direction === 'after' && currentIndex === targetIndex - 1);
+
+      if (isSamePosition) return;
+
+      // 1. Сохраняем старые позиции
+      const lastRects = new Map();
+      cards.forEach(el => lastRects.set(el, el.getBoundingClientRect()));
+
+      // 2. Меняем DOM
+      if (direction === 'before') {
+        grid.insertBefore(placeholder, card.nextSibling);
+      } else {
         grid.insertBefore(placeholder, card);
-
-        // 3. Анимация ПОСЛЕ изменений
-        requestAnimationFrame(() => {
-          const afterCards = [...grid.querySelectorAll('.app_card')].filter(c => c !== placeholder);
-          animateFlip(afterCards, lastOrderRects);
-        });
       }
-      inserted = true;
+
+      // 3. Анимация (ожидаем завершения)
+      animationInProgress = true;
+      const updatedCards = [...grid.querySelectorAll('.app_card')].filter(c => c !== placeholder);
+      await animateFlip(updatedCards, lastRects);
+      animationInProgress = false;
+
       break;
     }
   }
-
-  if (!inserted) {
-    const lastCard = [...grid.children]
-      .filter(el => el.classList.contains('app_card'))
-      .at(-1);
-
-    if (placeholder !== lastCard.nextSibling) {
-      // 1. Сохраняем позиции ДО изменений
-      lastOrderRects = new Map();
-      cards.forEach(el => lastOrderRects.set(el, el.getBoundingClientRect()));
-
-      // 2. Изменяем DOM
-      grid.insertBefore(placeholder, lastCard.nextSibling);
-
-      // 3. Анимация ПОСЛЕ изменений
-      requestAnimationFrame(() => {
-        const afterCards = [...grid.querySelectorAll('.app_card')].filter(c => c !== placeholder);
-        animateFlip(afterCards, lastOrderRects);
-      });
-    }
-  }
 }
+
+
 
 function onMouseUp() {
   placeholder.replaceWith(draggedEl);
