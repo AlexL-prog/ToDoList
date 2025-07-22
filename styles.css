@@ -66,7 +66,7 @@ body {
 .dragging {
   position: absolute;
   pointer-events: none;
-  opacity: 0.8;
+  opacity: 1;
   transform: scale(1.05);
   z-index: 1000;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -88,6 +88,7 @@ body {
 .card_to_do_section {
   flex: 1;
   padding: 10px;
+  background-color: rgb(255, 255, 255);
 }
 
 .app_card_new_task_btn {

@@ -1,35 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
   <title>Document</title>
 </head>
+
 <body>
   <header>
     <div class="app_header">
       <div class="app_auth_buttons">
         <button>
-          <a href="#">Login</a> 
-        </button>                 
+          <a href="#">Login</a>
+        </button>
         |
         <button>
-          <a href="#">Register</a> 
-        </button>        
-        
-      </div>      
+          <a href="#">Register</a>
+        </button>
+
+      </div>
     </div>
   </header>
 
   <main class="app_main">
     <div class="app_main_grid">
 
-      <article class="app_card" draggable="true">
-        <section class="card_category">Programming 1</section>
+      <article class="app_card">
+        <section class="card_category" draggable="true">Programming 1</section>
         <section class="card_to_do_section">
           <ul>
             <li>Learn SQLAlchemy</li>
@@ -42,8 +45,8 @@
         </section>
       </article>
 
-      <article class="app_card" draggable="true">
-        <section class="card_category">Programming 2</section>
+      <article class="app_card">
+        <section class="card_category" draggable="true">Programming 2</section>
         <section class="card_to_do_section">
           <ul>
             <li>Learn SQLAlchemy</li>
@@ -56,8 +59,8 @@
         </section>
       </article>
 
-      <article class="app_card" draggable="true">
-        <section class="card_category">Programming 3</section>
+      <article class="app_card">
+        <section class="card_category" draggable="true">Programming 3</section>
         <section class="card_to_do_section">
           <ul>
             <li>Learn SQLAlchemy</li>
@@ -70,8 +73,8 @@
         </section>
       </article>
 
-      <article class="app_card" draggable="true">
-        <section class="card_category">Programming 4</section>
+      <article class="app_card">
+        <section class="card_category" draggable="true">Programming 4</section>
         <section class="card_to_do_section">
           <ul>
             <li>Learn SQLAlchemy</li>
@@ -84,8 +87,8 @@
         </section>
       </article>
 
-      <article class="app_card" draggable="true">
-        <section class="card_category">Programming 5</section>
+      <article class="app_card">
+        <section class="card_category" draggable="true">Programming 5</section>
         <section class="card_to_do_section">
           <ul>
             <li>Learn SQLAlchemy</li>
@@ -98,8 +101,8 @@
         </section>
       </article>
 
-      <article class="app_card" draggable="true">
-        <section class="card_category">Programming 6</section>
+      <article class="app_card">
+        <section class="card_category" draggable="true">Programming 6</section>
         <section class="card_to_do_section">
           <ul>
             <li>Learn SQLAlchemy</li>
@@ -112,8 +115,8 @@
         </section>
       </article>
 
-      <article class="app_card" draggable="true">
-        <section class="card_category">Programming 6</section>
+      <article class="app_card">
+        <section class="card_category" draggable="true">Programming 6</section>
         <section class="card_to_do_section">
           <ul>
             <li>Learn SQLAlchemy</li>
@@ -129,7 +132,7 @@
       <article class="app_add_card">
         <section>
           <button>
-            <span class="plus">+</span> 
+            <span class="plus">+</span>
             <br> Add New Category
           </button>
         </section>
@@ -145,163 +148,151 @@
   </footer>
 </body>
 <script>
-const grid = document.querySelector('.app_main_grid');
-let draggedEl = null;
+  const grid = document.querySelector('.app_main_grid');
+  let draggedEl = null;
 
-let isAnimating = false;
+  function animateFlip(elements, beforeRects) {
+    const animations = [];
 
-function animateFlip(elements, beforeRects) {
-  if (isAnimating) return; // 🚫 Пропускаем, если уже идёт анимация
+    elements.forEach(el => {
+      const first = beforeRects.get(el);
+      const last = el.getBoundingClientRect();
 
-  const animations = [];
+      if (!first) return;
 
-  elements.forEach(el => {
-    const first = beforeRects.get(el);
-    const last = el.getBoundingClientRect();
+      const dx = first.left - last.left;
+      const dy = first.top - last.top;
 
-    if (!first) return;
+      if (dx === 0 && dy === 0) return;
 
-    const dx = first.left - last.left;
-    const dy = first.top - last.top;
+      const anim = el.animate([
+        { transform: `translate(${dx}px, ${dy}px)` },
+        { transform: 'translate(0, 0)' }
+      ], {
+        duration: 300,
+        easing: 'ease'
+      });
 
-    if (dx === 0 && dy === 0) return; // ✋ Нет смещения — нечего анимировать
-
-    const anim = el.animate([
-      { transform: `translate(${dx}px, ${dy}px)` },
-      { transform: 'translate(0, 0)' }
-    ], {
-      duration: 300,
-      easing: 'ease'
+      animations.push(anim.finished);
     });
 
-    animations.push(anim);
+    return Promise.all(animations); // Вернёт промис, который завершится, когда все анимации закончатся
+  }
+
+
+  let startX = 0, startY = 0;
+  let offsetX = 0, offsetY = 0;
+  let placeholder = null;
+
+  grid.addEventListener('mousedown', (e) => {
+    const target = e.target.closest('.app_card');
+    if (!target) return;
+
+    draggedEl = target;
+    const rect = target.getBoundingClientRect();
+
+    startX = e.clientX;
+    startY = e.clientY;
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+
+    // Клонируем элемент как placeholder
+    placeholder = document.createElement('article');
+
+
+    placeholder.className = 'app_card_placeholder';
+    placeholder.style.width = rect.width + 'px';
+    placeholder.style.height = rect.height + 'px';
+
+
+    grid.insertBefore(placeholder, target.nextSibling);
+
+    // Перемещаем карточку в body
+    draggedEl.classList.add('dragging');
+    draggedEl.style.width = `${rect.width}px`;
+    draggedEl.style.height = `${rect.height}px`;
+    document.body.appendChild(draggedEl);
+
+    moveAt(e.pageX, e.pageY);
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
   });
 
-  if (animations.length > 0) {
-    isAnimating = true;
-    Promise.all(animations.map(a => a.finished)).then(() => {
-      isAnimating = false;
-    });
+  function moveAt(pageX, pageY) {
+    draggedEl.style.left = pageX - offsetX + 'px';
+    draggedEl.style.top = pageY - offsetY + 'px';
   }
-}
 
+  let lastOrderRects = new Map();
 
+  let animationInProgress = false;
 
+  async function onMouseMove(e) {
+    moveAt(e.pageX, e.pageY); // всегда обновляем позицию
 
+    if (animationInProgress) return; // остальное не трогаем, если анимация
 
+    const allCards = [...grid.querySelectorAll('.app_card')];
+    const cards = allCards.filter(c => c !== placeholder);
 
-let startX = 0, startY = 0;
-let offsetX = 0, offsetY = 0;
-let placeholder = null;
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
 
-grid.addEventListener('mousedown', (e) => {
-  const target = e.target.closest('.app_card');
-  if (!target) return;
+    for (const card of cards) {
+      const rect = card.getBoundingClientRect();
+      const isInsideY = mouseY > rect.top && mouseY < rect.bottom;
+      const isInsideX = mouseX > rect.left && mouseX < rect.right;
 
-  draggedEl = target;
-  const rect = target.getBoundingClientRect();
+      if (isInsideX && isInsideY) {
+        const centerX = rect.left + rect.width / 2;
+        const currentIndex = allCards.indexOf(placeholder);
+        const targetIndex = allCards.indexOf(card);
+        const direction = mouseX < centerX ? 'before' : 'after';
 
-  startX = e.clientX;
-  startY = e.clientY;
-  offsetX = e.clientX - rect.left;
-  offsetY = e.clientY - rect.top;
+        const isSamePosition =
+          (direction === 'before' && currentIndex === targetIndex + 1) ||
+          (direction === 'after' && currentIndex === targetIndex - 1);
 
-  // Клонируем элемент как placeholder
-  placeholder = document.createElement('article');
+        if (isSamePosition) return;
 
+        // 1. Сохраняем старые позиции
+        const lastRects = new Map();
+        cards.forEach(el => lastRects.set(el, el.getBoundingClientRect()));
 
-  placeholder.className = 'app_card placeholder';
-  const style = getComputedStyle(target);
-  placeholder.style.width = style.width;
-  placeholder.style.height = style.height;
-  
+        // 2. Меняем DOM
+        if (direction === 'before') {
+          grid.insertBefore(placeholder, card);
+        } else {
+          grid.insertBefore(placeholder, card.nextSibling);
+        }
 
-  grid.insertBefore(placeholder, target.nextSibling);
+        // 3. Анимация без блокировки мыши
+        animationInProgress = true;
+        const updatedCards = [...grid.querySelectorAll('.app_card')].filter(c => c !== placeholder);
+        animateFlip(updatedCards, lastRects).then(() => {
+          animationInProgress = false;
+        });
 
-  // Перемещаем карточку в body
-  draggedEl.classList.add('dragging');
-  draggedEl.style.width = `${rect.width}px`;
-  draggedEl.style.height = `${rect.height}px`;
-  document.body.appendChild(draggedEl);
-
-  moveAt(e.pageX, e.pageY);
-
-  document.addEventListener('mousemove', onMouseMove);
-  document.addEventListener('mouseup', onMouseUp);
-});
-
-function moveAt(pageX, pageY) {
-  draggedEl.style.left = pageX - offsetX + 'px';
-  draggedEl.style.top = pageY - offsetY + 'px';
-}
-
-let lastOrderRects = new Map();
-
-let animationInProgress = false;
-
-async function onMouseMove(e) {
-  if (animationInProgress) return; // не обрабатывать, пока идёт анимация
-
-  moveAt(e.pageX, e.pageY);
-
-  const allCards = [...grid.querySelectorAll('.app_card')];
-  const cards = allCards.filter(c => c !== placeholder);
-
-  const mouseX = e.clientX;
-  const mouseY = e.clientY;
-
-  for (const card of cards) {
-    const rect = card.getBoundingClientRect();
-    const isInsideY = mouseY > rect.top && mouseY < rect.bottom;
-    const isInsideX = mouseX > rect.left && mouseX < rect.right;
-
-    if (isInsideX && isInsideY) {
-      const centerX = rect.left + rect.width / 2;
-      const currentIndex = allCards.indexOf(placeholder);
-      const targetIndex = allCards.indexOf(card);
-      const direction = mouseX < centerX ? 'before' : 'after';
-
-      const isSamePosition =
-        (direction === 'before' && currentIndex === targetIndex + 1) ||
-        (direction === 'after' && currentIndex === targetIndex - 1);
-
-      if (isSamePosition) return;
-
-      // 1. Сохраняем старые позиции
-      const lastRects = new Map();
-      cards.forEach(el => lastRects.set(el, el.getBoundingClientRect()));
-
-      // 2. Меняем DOM
-      if (direction === 'before') {
-        grid.insertBefore(placeholder, card.nextSibling);
-      } else {
-        grid.insertBefore(placeholder, card);
+        break;
       }
-
-      // 3. Анимация (ожидаем завершения)
-      animationInProgress = true;
-      const updatedCards = [...grid.querySelectorAll('.app_card')].filter(c => c !== placeholder);
-      await animateFlip(updatedCards, lastRects);
-      animationInProgress = false;
-
-      break;
     }
   }
-}
 
 
 
-function onMouseUp() {
-  placeholder.replaceWith(draggedEl);
 
-  draggedEl.classList.remove('dragging');
-  draggedEl.style = '';
+  function onMouseUp() {
+    placeholder.replaceWith(draggedEl);
 
-  document.removeEventListener('mousemove', onMouseMove);
-  document.removeEventListener('mouseup', onMouseUp);
+    draggedEl.classList.remove('dragging');
+    draggedEl.style = '';
 
-  draggedEl = null;
-}
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+
+    draggedEl = null;
+  }
 
 </script>
 
