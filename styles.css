@@ -66,7 +66,7 @@ body {
 .dragging {
   position: absolute;
   pointer-events: none;
-  opacity: 0.8;
+  opacity: 1;
   transform: scale(1.05);
   z-index: 1000;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -88,7 +88,33 @@ body {
 .card_to_do_section {
   flex: 1;
   padding: 10px;
+  background-color: rgb(255, 255, 255);
 }
+
+.card_to_do_section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card_to_do_section li {
+  margin-bottom: 8px;
+}
+
+.card_to_do_section input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.card_to_do_section input[type="checkbox"]:checked + .editable {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.editable {
+  outline: none;
+  cursor: text;
+}
+
 
 .app_card_new_task_btn {
   background-color: rgb(30, 28, 29);
