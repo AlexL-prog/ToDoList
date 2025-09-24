@@ -116,6 +116,27 @@ body {
   color: gray;
 }
 
+.task_list li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.delete_task_btn {
+  background: none;
+  border: none;
+  color: red;
+  font-size: 16px;
+  cursor: pointer;
+  display: none;
+  margin-left: 8px;
+}
+
+.task_list li:hover .delete_task_btn {
+  display: inline;
+}
+
 .app_card_new_task_btn {
   background-color: rgb(30, 28, 29);
   color: rgb(255, 255, 255);
